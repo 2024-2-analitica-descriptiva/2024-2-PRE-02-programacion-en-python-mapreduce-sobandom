@@ -6,10 +6,12 @@ import fileinput
 import glob
 import os.path
 from itertools import groupby
+import string
+
 
 
 #
-# Escriba la función load_input que recive como parámetro un folder y retorna
+# Escriba la función load_input que recibe como parámetro un folder y retorna
 # una lista de tuplas donde el primer elemento de cada tupla es el nombre del
 # archivo y el segundo es una línea del archivo. La función convierte a tuplas
 # todas las lineas de cada uno de los archivos. La función es genérica y debe
@@ -25,6 +27,18 @@ from itertools import groupby
 #
 def load_input(input_directory):
     """Funcion load_input"""
+     # Lista para almacenar las tuplas (nombre del archivo, línea)
+    lines_list = []
+    # Obtenemos todos los archivos en el directorio
+    files = glob.glob(f"{input_directory}/*")
+    
+    with fileinput.input(files=files) as f:
+        for line in f:
+            lines_list.append((fileinput.filename(), line))
+
+    return lines_list
+    
+    
 
 
 #
@@ -32,8 +46,23 @@ def load_input(input_directory):
 # función anterior y retorna una lista de tuplas (clave, valor). Esta función
 # realiza el preprocesamiento de las líneas de texto,
 #
-def line_preprocessing(sequence):
+def line_preprocessing(lines_list):
     """Line Preprocessing"""
+    lines_list= [
+        (key, value.translate(str.maketrans("", "", string.punctuation)))
+        for key, value in lines_list
+    ]    
+
+    lines_list = [
+        (key, value.lower())
+        for key, value in lines_list
+    ]
+
+    lines_list = [
+        (key, value.strip())
+        for key, value in lines_list
+    ]
+    return lines_list
 
 
 #
@@ -110,10 +139,17 @@ def create_marker(output_directory):
 #
 def run_job(input_directory, output_directory):
     """Job"""
+    files = load_input(input_directory)
+    files = line_preprocessing(files)
+
+    from pprint import pprint
+    print()
+    pprint(files)
+    print()
 
 
 if __name__ == "__main__":
     run_job(
-        "input",
-        "output",
+        "files/input",
+        "files/output",
     )
